@@ -22,5 +22,6 @@ This is a simple response time calculator game built using HTML, CSS, Bootstrap,
 **Getting Started:**
 
 To play the game, simply open the `index.html` file in your web browser. No additional setup or installation is required.
+Refresh the page to start over.
 
 ---
