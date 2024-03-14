@@ -4,7 +4,7 @@
 
 This is a simple response time calculator game built using HTML, CSS, Bootstrap, and JavaScript. It serves as a beginner-friendly tool to strengthen basic JavaScript skills. The game consists of a single-page `index.html` file, where all interactions, from taking inputs to displaying results, are handled dynamically through JavaScript.
 
-- **Date Started:** [Enter date when the project was started]
+- **Date Started:** 13 March 2024 (It took me two days to build this.)
 
 **Features:**
 
