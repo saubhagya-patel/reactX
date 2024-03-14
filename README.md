@@ -1,4 +1,4 @@
-#Response Time Calculator Game
+# Response Time Calculator Game
 
 **Description:**
 
