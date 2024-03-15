@@ -5,6 +5,7 @@ const resultBox=document.getElementById('result-box');
 const messageBox=document.getElementById('message-box');
 const countdownElement = document.getElementById('timer-box');
 const body=document.getElementById('test');
+const replayButtonContainer=document.getElementById('replayButtonContainer');
 let difficulty = document.getElementById('difficulty').value;
 let iterations = document.getElementById('iterations').value;
 const intermediateReactionTime=[];
@@ -21,11 +22,11 @@ startGameButton.addEventListener('click', function() {
     difficulty = document.getElementById('difficulty').value;
     iterations = document.getElementById('iterations').value;
     if(!iterations) {
-        iterations=3;
+        iterations=1;
     }
     entryBox.remove();
     messageBox.remove();
-    countdown(2);
+    countdown(0);
 });
 
 function countdown(seconds) {
