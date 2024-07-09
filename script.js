@@ -3,6 +3,7 @@ const gameBox = document.getElementById('game-box');
 const entryBox = document.getElementById('entry-box');
 const resultBox = document.getElementById('result-box');
 const messageBox = document.getElementById('message-box');
+const githubBox = document.getElementById('message-box-github');
 const countdownElement = document.getElementById('timer-box');
 const body = document.getElementById('test');
 const replayButtonContainer = document.getElementById('replayButtonContainer');
@@ -26,6 +27,7 @@ startGameButton.addEventListener('click', function () {
     }
     entryBox.remove();
     messageBox.remove();
+    githubBox.remove();
     countdown(3);
 });
 
