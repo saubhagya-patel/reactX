@@ -1,11 +1,11 @@
-import GameScreen from "./GameScreen";
-import ReactionTimeChart from "./ReactionTimeChart";
-import ResultsScreen from "./ResultScreen";
-import SetupScreen from "./SetupScreen";
+import AvatarSelector from "./AvatarSelector";
+import MainLayout from "./MainLayout";
+import Navbar from "./Navbar";
+import ProtectedRoute from "./ProtectedRoute";
 
 export {
-    GameScreen,
-    ReactionTimeChart,
-    ResultsScreen,
-    SetupScreen,
+    AvatarSelector,
+    MainLayout,
+    Navbar,
+    ProtectedRoute,
 }
