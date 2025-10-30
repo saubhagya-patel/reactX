@@ -15,6 +15,7 @@ import {
   Button
 } from '@mui/material';
 import ReactionTimeChart from './ReactionTimeChart';
+import Icons from '../assets/Icon_Assets';
 
 
 const ResultsScreen = ({ results, onPlayAgain }) => {
