@@ -3,7 +3,7 @@ import './config/config.js';
 import express from "express";
 import cors from "cors";
 import { connectDB } from './db/db_instance.js';
-import { auth_router, game_score_router, user_router } from './routes/index.js';
+import { auth_router, game_score_router, leaderboard_router, user_router } from './routes/index.js';
 
 
 const startServer = async () => {
@@ -20,8 +20,9 @@ const startServer = async () => {
 
         // --- API Routes ---
         app.use("/api/auth", auth_router);
-        app.use("/api/game_score", game_score_router);
-        app.use("/api/user", user_router);
+        app.use("/api/scores", game_score_router);
+        app.use("/api/users", user_router);
+        app.use("/api/leaderboard", leaderboard_router);
 
         app.listen(port, () => {
             console.log(`Server is running as an API at http://localhost:${port}`);

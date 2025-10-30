@@ -1,4 +1,4 @@
-import { getDB } from "../db/db_instance";
+import { getDB } from "../db/db_instance.js";
 
 /**
  * Creates a new game score in the database.

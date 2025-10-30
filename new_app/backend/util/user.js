@@ -1,4 +1,4 @@
-import pool from '../db.js';
+import { getDB } from "../db/db_instance.js";
 
 /**
  * Finds a user by their ID (UUID).
@@ -6,8 +6,9 @@ import pool from '../db.js';
  * @returns {Promise<object|null>} The user object (without password) or null.
  */
 export async function findUserById(id) {
+  const db = getDB();
   try {
-    const result = await pool.query(
+    const result = await db.query(
       'SELECT "id", "email", "username", "avatar_key", "created_at" FROM "users" WHERE "id" = $1',
       [id]
     );
@@ -25,9 +26,10 @@ export async function findUserById(id) {
  * @returns {Promise<object>} The updated user object.
  */
 export async function updateUser(id, { username, avatar_key }) {
+  const db = getDB();
   try {
     // We only update the fields that are provided
-    const result = await pool.query(
+    const result = await db.query(
       `UPDATE "users"
        SET 
          "username" = COALESCE($1, "username"),

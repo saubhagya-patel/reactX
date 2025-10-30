@@ -14,6 +14,7 @@ export const getTopScores = async (req, res) => {
     const scores = await leaderboard_util.getLeaderboard(game, 10);
     res.status(200).json(scores);
   } catch (error) {
+    console.error(error)
     res.status(500).json({ message: 'Server error retrieving leaderboard.' });
   }
 };
