@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getLeaderboard } from '../services/api_client';
+import { GAME_ICON_MAP } from './HomePage';
 
 // A mapping of avatar keys to emojis for display
 const AVATAR_MAP = {
@@ -18,15 +19,6 @@ const GAME_TYPE_MAP = {
   auditory_simple: 'Auditory Reaction',
   stroop_effect: 'Stroop Reaction',
   simon_game: 'Simon Reaction'
-};
-
-// A mapping of game keys to icons
-const GAME_ICON_MAP = {
-  visual_simple: '🎯',
-  visual_choice: '🎨',
-  auditory_simple: '🎧',
-  stroop_effect: '🌀',
-  simon_game: '🟥🟩🟦🟨'
 };
 
 const LeaderboardPage = () => {

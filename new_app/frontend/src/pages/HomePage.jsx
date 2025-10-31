@@ -2,37 +2,46 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuthStore } from '../store/auth_store';
 
+// A mapping of game keys to icons
+export const GAME_ICON_MAP = {
+  visual_simple: '🎯',
+  visual_choice: '#️⃣',
+  auditory_simple: '🎧',
+  stroop_effect: '🌀',
+  simon_game: '🎨'
+};
+
 // Game data to display on the hub
 const games = [
   {
     type: 'visual_simple',
     title: 'Visual Reaction',
     description: 'Click the shape as soon as it appears on the screen.',
-    icon: '🎯',
+    icon: GAME_ICON_MAP.visual_simple,
   },
   {
     type: 'visual_choice',
     title: 'Choice Reaction',
     description: 'Press the correct key (R, G, B) that matches the shape\'s color.',
-    icon: '🎨',
+    icon: GAME_ICON_MAP.visual_choice,
   },
   {
     type: 'auditory_simple',
     title: 'Auditory Reaction',
     description: 'Click the screen as soon as you hear the beep.',
-    icon: '🎧',
+    icon: GAME_ICON_MAP.auditory_simple,
   },
   {
     type: 'stroop_effect',
     title: 'Stroop Effect',
     description: 'Click the color of the text NOT the word.',
-    icon: '🌀',
+    icon: GAME_ICON_MAP.stroop_effect,
   },
   {
     type: 'simon_game',
     title: 'Simon Game',
     description: "The good ol'",
-    icon: '🟥🟩🟦🟨',
+    icon: GAME_ICON_MAP.simon_game,
   },
 ];
 
