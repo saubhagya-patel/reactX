@@ -1,14 +1,5 @@
 import React from 'react';
-
-// Avatar data, decoupled from the database
-export const AVATARS = [
-  { key: 'fire', emoji: '🔥', label: 'Fire', description: 'Energy, quick reflexes' },
-  { key: 'water', emoji: '💧', label: 'Water', description: 'Adaptability, flow' },
-  { key: 'air', emoji: '🌬️', label: 'Air', description: 'Clarity, fast thinking' },
-  { key: 'earth', emoji: '🌿', label: 'Earth', description: 'Stability, consistent focus' },
-  { key: 'lightning', emoji: '⚡', label: 'Lightning', description: 'Instant reaction, burst speed' },
-  { key: 'ice', emoji: '❄️', label: 'Ice', description: 'Precision, control' },
-];
+import { AVATARS_INFO } from '../store/app_info_store';
 
 /**
  * A reusable component to select a user avatar.
@@ -20,7 +11,7 @@ const AvatarSelector = ({ selectedAvatar, onAvatarChange }) => {
     <div>
       <label className="mb-2 block text-sm font-medium text-gray-300">Choose your Avatar</label>
       <div className="grid grid-cols-3 gap-4 rounded-lg bg-gray-800 p-4">
-        {AVATARS.map((avatar) => (
+        {AVATARS_INFO.map((avatar) => (
           <button
             type="button" // Important: prevents form submission
             key={avatar.key}

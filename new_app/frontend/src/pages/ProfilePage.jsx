@@ -1,27 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/auth_store';
 import { updateMyProfile, getMyScores } from '../services/api_client';
-import AvatarSelector, { AVATARS } from '../components/AvatarSelector';
-
-// A mapping of avatar keys to emojis for display
-const AVATAR_MAP = {
-  fire: '🔥',
-  water: '💧',
-  air: '🌬️',
-  earth: '🌿',
-  lightning: '⚡',
-  ice: '❄️',
-};
-
-// A mapping of game keys to formatted titles
-const GAME_TYPE_MAP = {
-  visual_simple: 'Visual Reaction',
-  visual_choice: 'Choice Reaction',
-  auditory_simple: 'Auditory Reaction',
-  stroop_effect: 'Stroop Reaction',
-  simon_game: 'Simon Reaction',
-  number_order: 'Number Reaction',
-};
+import AvatarSelector from '../components/AvatarSelector';
+import { AVATAR_EMOJI_MAP, GAME_ICON_MAP, GAME_TYPE_MAP } from '../store/app_info_store';
 
 const ProfilePage = () => {
   const { user, token, updateUser: updateUserInStore } = useAuthStore((state) => ({
@@ -100,7 +81,7 @@ const ProfilePage = () => {
           // --- View Mode ---
           <div className="flex items-center space-x-6">
             <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gray-700 text-6xl shadow-inner">
-              {AVATAR_MAP[user.avatar_key]}
+              {AVATAR_EMOJI_MAP[user.avatar_key]}
             </div>
             <div>
               <h2 className="text-3xl font-bold text-white">{user.username}</h2>
@@ -186,9 +167,12 @@ const ProfilePage = () => {
                     Game
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-300">
-                    Score (ms)
+                    Difficulty
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-300">
+                    Score (ms)
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-3D">
                     Accuracy
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-300">
@@ -200,13 +184,16 @@ const ProfilePage = () => {
                 {scores.map((score) => (
                   <tr key={score.id} className="hover:bg-gray-700">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                      {GAME_TYPE_MAP[score.game_type] || score.game_type}
+                      {GAME_ICON_MAP[score.game_type] || '+'} {GAME_TYPE_MAP[score.game_type] || score.game_type}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm capitalize text-gray-300">
+                      {score.difficulty}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-indigo-400">
                       {score.avg_score_time_ms} ms
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                      {score.accuracy !== null ? `${score.accuracy * 100}%` : 'N/A'}
+                      {typeof score.avg_accuracy === 'number' ? `${(score.avg_accuracy * 100).toFixed(0)}%` : 'N/A'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
                       {new Date(score.created_at).toLocaleString()}

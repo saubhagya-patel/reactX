@@ -1,26 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getLeaderboard } from '../services/api_client';
-import { GAME_ICON_MAP } from './HomePage';
-
-// A mapping of avatar keys to emojis for display
-const AVATAR_MAP = {
-  fire: '🔥',
-  water: '💧',
-  air: '🌬️',
-  earth: '🌿',
-  lightning: '⚡',
-  ice: '❄️',
-};
-
-// A mapping of game keys to formatted titles
-const GAME_TYPE_MAP = {
-  visual_simple: 'Visual Reaction',
-  visual_choice: 'Choice Reaction',
-  auditory_simple: 'Auditory Reaction',
-  stroop_effect: 'Stroop Reaction',
-  simon_game: 'Simon Reaction',
-  number_order: 'Number Reaction',
-};
+import { AVATAR_EMOJI_MAP, GAME_ICON_MAP, GAME_TYPE_MAP } from '../store/app_info_store';
 
 const LeaderboardPage = () => {
   const [scores, setScores] = useState([]);
@@ -69,13 +49,11 @@ const LeaderboardPage = () => {
               onChange={(e) => setGameFilter(e.target.value)}
               className="w-full p-2 rounded-md border-gray-700 bg-gray-900 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
             >
-              <option value="">All Games</option>
-              <option value="visual_simple">Visual Reaction</option>
-              <option value="visual_choice">Choice Reaction</option>
-              <option value="auditory_simple">Auditory Reaction</option>
-              <option value="stroop_effect">Stroop Reaction</option>
-              <option value="simon_game">Simon Reaction</option>
-              <option value="number_order">Number Reaction</option>
+              {Object.entries(GAME_TYPE_MAP).map(([key, label]) => (
+                  <option key={key} value={key}>
+                    {label}
+                  </option>
+                ))}
             </select>
           </div>
 
@@ -157,7 +135,7 @@ const LeaderboardPage = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <span className="mr-3 text-2xl">{AVATAR_MAP[score.avatar_key] || '❔'}</span>
+                      <span className="mr-3 text-2xl">{AVATAR_EMOJI_MAP[score.avatar_key] || '❔'}</span>
                       <span className="font-medium text-white">{score.username}</span>
                     </div>
                   </td>

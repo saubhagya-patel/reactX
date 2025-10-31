@@ -11,7 +11,7 @@ const Layout = () => {
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100">
       <Navbar />
-      <main className="container mx-auto max-w-5xl px-4 py-8 pt-32">
+      <main className="container mx-auto max-w-5xl px-4 py-8 pt-24">
         <Outlet /> {/* Child routes will be rendered here */}
       </main>
     </div>
