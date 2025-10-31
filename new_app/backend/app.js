@@ -25,7 +25,7 @@ const startServer = async () => {
         app.use("/api/leaderboard", leaderboard_router);
 
         app.listen(port, () => {
-            console.log(`Server is running as an API at http://localhost:${port}`);
+            console.log(`Server is running as an API.`);
         });
 
     } catch (error) {

@@ -1,9 +1,12 @@
 -- Drop tables if they exist, in order of dependency
-DROP TABLE IF EXISTS "game_scores";
-DROP TABLE IF EXISTS "users";
+
+-- these should be run iff, you wanna delete the db data, or at initialization
+
+-- DROP TABLE IF EXISTS "game_scores";
+-- DROP TABLE IF EXISTS "users";
 
 -- Create the 'users' table
-CREATE TABLE "users" (
+CREATE TABLE IF NOT EXISTS "users" (
     "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     "email" VARCHAR(255) UNIQUE NOT NULL,
     "username" VARCHAR(50) UNIQUE NOT NULL,
@@ -13,7 +16,7 @@ CREATE TABLE "users" (
 );
 
 -- Create the 'game_scores' table
-CREATE TABLE "game_scores" (
+CREATE TABLE IF NOT EXISTS "game_scores" (
     "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     "user_id" UUID NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
     "game_type" VARCHAR(50) NOT NULL,
