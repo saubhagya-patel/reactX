@@ -16,6 +16,7 @@ const GAME_TYPE_MAP = {
   visual_simple: 'Visual Reaction',
   visual_choice: 'Choice Reaction',
   auditory_simple: 'Auditory Reaction',
+  stroop_effect: 'Stroop Reaction',
 };
 
 const LeaderboardPage = () => {
@@ -69,6 +70,7 @@ const LeaderboardPage = () => {
               <option value="visual_simple">Visual Reaction</option>
               <option value="visual_choice">Choice Reaction</option>
               <option value="auditory_simple">Auditory Reaction</option>
+              <option value="stroop_effect">Stroop Reaction</option>
             </select>
           </div>
 

@@ -22,6 +22,12 @@ const games = [
     description: 'Click the screen as soon as you hear the beep.',
     icon: '🎧',
   },
+  {
+    type: 'stroop_effect',
+    title: 'Stroop Effect',
+    description: 'Click the color of the text NOT the word.',
+    icon: '🌀',
+  },
 ];
 
 const HomePage = () => {

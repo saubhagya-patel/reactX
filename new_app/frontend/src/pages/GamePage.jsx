@@ -7,6 +7,7 @@ import { submitGameResult } from '../services/api_client';
 import VisualSimpleGame from './VisualSimpleGame';
 import VisualChoiceGame from './VisualChoiceGame';
 import AuditorySimpleGame from './AuditorySimpleGame';
+import StroopEffectGame from './StroopEffectGame';
 
 // --- GameSettings Component ---
 const GameSettings = ({ gameName, onSubmit }) => {
@@ -236,6 +237,10 @@ const gameComponents = {
   auditory_simple: {
     component: AuditorySimpleGame,
     name: 'Auditory Reaction Test',
+  },
+  stroop_effect: {
+    component: StroopEffectGame,
+    name: 'Stroop Effect Test',
   },
 };
 
