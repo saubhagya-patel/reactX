@@ -8,7 +8,8 @@ export const GAME_ICON_MAP = {
   visual_choice: '#️⃣',
   auditory_simple: '🎧',
   stroop_effect: '🌀',
-  simon_game: '🎨'
+  simon_game: '🎨',
+  number_order: '🔢',
 };
 
 // Game data to display on the hub
@@ -42,6 +43,12 @@ const games = [
     title: 'Simon Game',
     description: "The good ol'",
     icon: GAME_ICON_MAP.simon_game,
+  },
+  {
+    type: 'number_order',
+    title: 'Number Order Game',
+    description: "Click numbers in ASC order.",
+    icon: GAME_ICON_MAP.number_order,
   },
 ];
 

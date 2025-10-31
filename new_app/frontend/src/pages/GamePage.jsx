@@ -9,6 +9,7 @@ import VisualChoiceGame from './VisualChoiceGame';
 import AuditorySimpleGame from './AuditorySimpleGame';
 import StroopEffectGame from './StroopEffectGame';
 import SimonGame from './SimonGame';
+import NumberOrderGame from './NumberOrderGame';
 
 // --- GameSettings Component ---
 const GameSettings = ({ gameName, onSubmit }) => {
@@ -246,6 +247,10 @@ const gameComponents = {
   simon_game: {
     component: SimonGame,
     name: 'Simon Game Test',
+  },
+  number_order: {
+    component: NumberOrderGame,
+    name: 'Number Order Test',
   },
 };
 

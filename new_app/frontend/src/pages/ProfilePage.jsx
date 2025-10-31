@@ -20,6 +20,7 @@ const GAME_TYPE_MAP = {
   auditory_simple: 'Auditory Reaction',
   stroop_effect: 'Stroop Reaction',
   simon_game: 'Simon Reaction',
+  number_order: 'Number Reaction',
 };
 
 const ProfilePage = () => {

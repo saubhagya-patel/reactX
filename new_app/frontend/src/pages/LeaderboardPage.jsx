@@ -18,7 +18,8 @@ const GAME_TYPE_MAP = {
   visual_choice: 'Choice Reaction',
   auditory_simple: 'Auditory Reaction',
   stroop_effect: 'Stroop Reaction',
-  simon_game: 'Simon Reaction'
+  simon_game: 'Simon Reaction',
+  number_order: 'Number Reaction',
 };
 
 const LeaderboardPage = () => {
@@ -74,6 +75,7 @@ const LeaderboardPage = () => {
               <option value="auditory_simple">Auditory Reaction</option>
               <option value="stroop_effect">Stroop Reaction</option>
               <option value="simon_game">Simon Reaction</option>
+              <option value="number_order">Number Reaction</option>
             </select>
           </div>
 
