@@ -1,4 +1,4 @@
-# 🚀 reactX: The Cognitive Hub
+# 🚀 reactX
 
 A full-stack app to test and track your cognitive performance via multiple games, user accounts, and a global leaderboard.
 
