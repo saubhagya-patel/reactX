@@ -181,8 +181,8 @@ const ProfilePage = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-700 bg-gray-800">
-                {scores.map((score) => (
-                  <tr key={score.id} className="hover:bg-gray-700">
+                {scores.map((score, index) => (
+                  <tr key={index} className="hover:bg-gray-700">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                       {GAME_ICON_MAP[score.game_type] || '+'} {GAME_TYPE_MAP[score.game_type] || score.game_type}
                     </td>
