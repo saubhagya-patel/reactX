@@ -1,165 +1,228 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { useAuthStore } from '../store/auth_store';
-import { submitScore } from '../services/api_client';
+import { submitGameResult } from '../services/api_client';
 
-// Import the individual game components
+// Game Components (assuming they are in the same folder)
 import VisualSimpleGame from './VisualSimpleGame';
 import VisualChoiceGame from './VisualChoiceGame';
 import AuditorySimpleGame from './AuditorySimpleGame';
 
-// Game metadata
-const GAME_COMPONENTS = {
+// --- GameSettings Component ---
+const GameSettings = ({ gameName, onSubmit }) => {
+  const [rounds, setRounds] = useState(10);
+  const [difficulty, setDifficulty] = useState('medium');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit({ rounds: Number(rounds), difficulty });
+  };
+
+  return (
+    <div className="max-w-md mx-auto bg-gray-800 p-8 rounded-lg shadow-xl">
+      <h2 className="text-3xl font-bold text-white text-center mb-6">{gameName}</h2>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label htmlFor="rounds" className="block text-sm font-medium text-gray-300">
+            Rounds
+          </label>
+          <select
+            id="rounds"
+            value={rounds}
+            onChange={(e) => setRounds(e.target.value)}
+            className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            <option value={2}>2 Rounds</option>
+            <option value={5}>5 Rounds</option>
+            <option value={10}>10 Rounds</option>
+            <option value={20}>20 Rounds</option>
+            <option value={30}>30 Rounds</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="difficulty" className="block text-sm font-medium text-gray-300">
+            Difficulty
+          </label>
+          <select
+            id="difficulty"
+            value={difficulty}
+            onChange={(e) => setDifficulty(e.target.value)}
+            className="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+          >
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </div>
+        <button
+          type="submit"
+          className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+        >
+          Start Game
+        </button>
+      </form>
+    </div>
+  );
+};
+
+// --- GameSummary Component ---
+const GameSummary = ({ results, onPlayAgain }) => {
+  
+  // Guard clause for NaN
+  if (!results || results.length === 0) {
+    return (
+      <div className="text-center p-8">
+        <h2 className="text-2xl font-bold text-white">Loading results...</h2>
+      </div>
+    );
+  }
+
+  // Calculate Averages
+  const totalTime = results.reduce((sum, r) => sum + r.score_time_ms, 0);
+  const avgTime = (totalTime / results.length).toFixed(1);
+  
+  const accuracyResults = results.filter(r => r.accuracy !== null && r.accuracy !== undefined);
+  
+  let avgAccuracy = "N/A"; // Default to N/A
+  if (accuracyResults.length > 0) {
+    const totalAccuracy = accuracyResults.reduce((sum, r) => sum + r.accuracy, 0);
+    avgAccuracy = ((totalAccuracy / accuracyResults.length) * 100).toFixed(1) + "%";
+  }
+
+  return (
+    <div className="max-w-md mx-auto bg-gray-800 p-8 rounded-lg shadow-xl text-white">
+      <h2 className="text-3xl font-bold text-center mb-6">Game Over!</h2>
+      
+      <div className="grid grid-cols-2 gap-4 text-center mb-8">
+        <div className="bg-gray-700 p-4 rounded-lg">
+          <div className="text-sm uppercase text-gray-400">Avg. Time</div>
+          <div className="text-3xl font-bold text-indigo-400">{avgTime} ms</div>
+        </div>
+        <div className="bg-gray-700 p-4 rounded-lg">
+          <div className="text-sm uppercase text-gray-400">Avg. Accuracy</div>
+          <div className="text-3xl font-bold text-indigo-400">{avgAccuracy}</div>
+        </div>
+      </div>
+
+      <button
+        onClick={onPlayAgain}
+        className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+      >
+        Play Again
+      </button>
+    </div>
+  );
+};
+
+// --- GamePage Component (Main) ---
+function GamePage() {
+  const { gameType } = useParams();
+  const token = useAuthStore((state) => state.token);
+  
+  const [gameState, setGameState] = useState('settings'); // settings, playing, finished
+  const [gameSettings, setGameSettings] = useState({ rounds: 10, difficulty: 'medium' });
+  const [results, setResults] = useState([]);
+
+  // Find the correct game component to render
+  const GameComponent = gameComponents[gameType]?.component || null;
+  const gameName = gameComponents[gameType]?.name || 'Game';
+
+  // Called from GameSettings
+  const handleGameStart = (settings) => {
+    setGameSettings(settings);
+    setResults([]); // Clear old results
+    setGameState('playing');
+  };
+
+  // Called from the individual game component
+  const handleGameEnd = (gameResults) => {
+    
+    // ** THE FIX IS HERE **
+    // Guard clause to prevent processing if gameResults is empty or invalid
+    if (!gameResults || gameResults.length === 0) {
+      console.error("handleGameEnd was called with no results.");
+      setResults([]); // Set to empty array to be safe
+      setGameState('finished');
+      return; 
+    }
+
+    // 1. Calculate final averages
+    const totalTime = gameResults.reduce((sum, r) => sum + r.score_time_ms, 0);
+    const avgTimeMs = totalTime / gameResults.length;
+    
+    const accuracyResults = gameResults.filter(r => r.accuracy !== null && r.accuracy !== undefined);
+    let avgAccuracy = null;
+    if (accuracyResults.length > 0) {
+      const totalAccuracy = accuracyResults.reduce((sum, r) => sum + r.accuracy, 0);
+      avgAccuracy = totalAccuracy / accuracyResults.length;
+    }
+
+    // 2. Set local state to show summary
+    setResults(gameResults);
+    setGameState('finished');
+
+    // 3. Save the *averaged* score to backend
+    if (token) {
+      const scoreData = {
+        game_type: gameType,
+        difficulty: gameSettings.difficulty,
+        // Ensure we send a number, not NaN
+        avg_score_time_ms: Math.round(avgTimeMs) || 0,
+        avg_accuracy: avgAccuracy
+      };
+
+      console.log('Submitting averaged score:', scoreData);
+      submitGameResult(scoreData, token).catch(err => {
+        // Log error, but don't block user
+        console.error("Failed to submit scores:", err);
+      });
+    }
+  };
+
+  // Called from GameSummary
+  const handlePlayAgain = () => {
+    setGameState('settings');
+  };
+
+  if (!GameComponent) {
+    return <div className="p-8 text-center text-red-500">Error: Game type "{gameType}" not found.</div>;
+  }
+
+  // Render the correct component based on the game state
+  return (
+    <div className="container mx-auto max-w-5xl px-4 py-12">
+      {gameState === 'settings' && (
+        <GameSettings gameName={gameName} onSubmit={handleGameStart} />
+      )}
+      
+      {gameState === 'playing' && (
+        <GameComponent
+          settings={gameSettings}
+          onGameEnd={handleGameEnd}
+        />
+      )}
+
+      {gameState === 'finished' && (
+        <GameSummary results={results} onPlayAgain={handlePlayAgain} />
+      )}
+    </div>
+  );
+}
+
+// Map of game components
+const gameComponents = {
   visual_simple: {
     component: VisualSimpleGame,
-    title: 'Visual Reaction',
+    name: 'Visual Reaction Test',
   },
   visual_choice: {
     component: VisualChoiceGame,
-    title: 'Choice Reaction',
+    name: 'Choice Reaction Test',
   },
   auditory_simple: {
     component: AuditorySimpleGame,
-    title: 'Auditory Reaction',
+    name: 'Auditory Reaction Test',
   },
-};
-
-/**
- * GamePage acts as a host for all the different games.
- * It manages the overall game state ('ready', 'playing', 'finished')
- * and handles submitting the final score to the backend.
- */
-const GamePage = () => {
-  const { gameType } = useParams(); // Get 'visual_simple' etc. from URL
-  const navigate = useNavigate();
-  const token = useAuthStore((state) => state.token);
-
-  const [gameState, setGameState] = useState('ready'); // 'ready', 'playing', 'finished'
-  const [results, setResults] = useState(null); // Will store { score_time_ms, accuracy }
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState(null);
-
-  const CurrentGame = GAME_COMPONENTS[gameType]?.component;
-  const gameTitle = GAME_COMPONENTS[gameType]?.title || 'Game';
-
-  // This function is passed down to the active game component.
-  // The game will call this when it's finished.
-  const handleGameEnd = (gameResults) => {
-    setResults(gameResults);
-    setGameState('finished');
-  };
-
-  // This is called by the GameSummary component
-  const handleSaveScore = async () => {
-    if (!results || !token) return;
-    setIsSubmitting(true);
-    setSubmitError(null);
-    try {
-      const scoreData = {
-        game_type: gameType,
-        score_time_ms: results.score_time_ms,
-        accuracy: results.accuracy || null,
-      };
-      await submitScore(scoreData, token);
-      // On success, navigate to the profile to see the new score
-      navigate('/profile');
-    } catch (err) {
-      console.error('Failed to submit score:', err);
-      setSubmitError('Failed to save score. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handlePlayAgain = () => {
-    setResults(null);
-    setGameState('ready'); // Reset the state to 'ready'
-  };
-
-  // Render logic based on the game state
-  const renderContent = () => {
-    switch (gameState) {
-      case 'ready':
-        return (
-          <div className="text-center">
-            <h2 className="mb-4 text-3xl font-bold text-white">{gameTitle}</h2>
-            <p className="mb-8 text-lg text-gray-300">
-              When you're ready, click the button below to start.
-            </p>
-            <button
-              onClick={() => setGameState('playing')}
-              className="rounded-md bg-indigo-600 px-8 py-3 text-lg font-medium text-white shadow-lg transition-transform duration-200 hover:scale-105"
-            >
-              Start
-            </button>
-          </div>
-        );
-      case 'playing':
-        return CurrentGame ? (
-          <CurrentGame onGameEnd={handleGameEnd} />
-        ) : (
-          <p className="text-center text-red-400">Error: Game not found.</p>
-        );
-      case 'finished':
-        return (
-          <GameSummary
-            results={results}
-            onSaveScore={handleSaveScore}
-            onPlayAgain={handlePlayAgain}
-            isSubmitting={isSubmitting}
-            submitError={submitError}
-          />
-        );
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <div className="mx-auto max-w-2xl rounded-lg bg-gray-800 p-8 shadow-xl">
-      {renderContent()}
-    </div>
-  );
-};
-
-// A sub-component to show the game results
-const GameSummary = ({ results, onSaveScore, onPlayAgain, isSubmitting, submitError }) => {
-  return (
-    <div className="text-center">
-      <h2 className="mb-4 text-3xl font-bold text-white">Game Over!</h2>
-      <div className="mb-6 space-y-2">
-        <p className="text-xl text-gray-300">Your average reaction time was:</p>
-        <p className="text-5xl font-bold text-indigo-400">{results.score_time_ms} ms</p>
-        {results.accuracy !== undefined && (
-          <p className="text-xl text-gray-300">
-            Accuracy: <span className="text-indigo-400">{results.accuracy * 100}%</span>
-          </p>
-        )}
-      </div>
-
-      {submitError && (
-        <div className="mb-4 rounded-md bg-red-900 p-3 text-center text-sm text-red-200">
-          {submitError}
-        </div>
-      )}
-
-      <div className="flex justify-center space-x-4">
-        <button
-          onClick={onPlayAgain}
-          className="rounded-md bg-gray-600 px-6 py-2 font-medium text-white hover:bg-gray-500"
-        >
-          Play Again
-        </button>
-        <button
-          onClick={onSaveScore}
-          disabled={isSubmitting}
-          className="rounded-md bg-indigo-600 px-6 py-2 font-medium text-white hover:bg-indigo-500 disabled:opacity-50"
-        >
-          {isSubmitting ? 'Saving...' : 'Save Score'}
-        </button>
-      </div>
-    </div>
-  );
 };
 
 export default GamePage;

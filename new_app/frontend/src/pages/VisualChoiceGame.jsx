@@ -1,102 +1,134 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
-// Game settings
-const ROUNDS = 10;
-const MIN_DELAY = 800;
-const MAX_DELAY = 3000;
-const COLORS = [
-  { key: 'r', hex: '#EF4444', name: 'Red' }, // R key
-  { key: 'g', hex: '#22C55E', name: 'Green' }, // G key
-  { key: 'b', hex: '#3B82F6', name: 'Blue' }, // B key
-];
+// Key mapping
+const keyMap = {
+  r: 'red',
+  g: 'green',
+  b: 'blue',
+};
+const colors = ['red', 'green', 'blue'];
+const colorHex = {
+  red: '#ef4444',
+  green: '#22c55e',
+  blue: '#3b82f6',
+};
 
-/**
- * Game 2: Press the correct key (R, G, B) for the color.
- */
-const VisualChoiceGame = ({ onGameEnd }) => {
-  const [round, setRound] = useState(0);
-  const [currentColor, setCurrentColor] = useState(null);
-  const [isWaiting, setIsWaiting] = useState(true);
-  const [results, setResults] = useState([]); // Stores { time, isCorrect }
-  const timerRef = useRef(null);
-  const startTimeRef = useRef(0);
+function VisualChoiceGame({ settings, onGameEnd }) {
+  const [gameState, setGameState] = useState('ready'); // ready, playing, result
+  const [results, setResults] = useState([]);
+  const [challenge, setChallenge] = useState({ key: null, color: null });
+  const [feedback, setFeedback] = useState(null); // 'correct' or 'incorrect'
+  const startTime = useRef(0);
+  const nextRoundTimer = useRef(null);
 
-  // Game loop effect
+  // This is the correct game-end logic
   useEffect(() => {
-    if (round >= ROUNDS) {
-      // Game over
-      const totalTime = results.reduce((sum, r) => sum + r.time, 0);
-      const correctCount = results.filter((r) => r.isCorrect).length;
-      onGameEnd({
-        score_time_ms: Math.round(totalTime / results.length),
-        accuracy: correctCount / results.length,
-      });
-      return;
+    if (results.length > 0 && results.length === settings.rounds) {
+      onGameEnd(results);
     }
+  }, [results, settings.rounds, onGameEnd]);
 
-    // Start next round
-    setIsWaiting(true);
-    setCurrentColor(null);
-    const delay = MIN_DELAY + Math.random() * (MAX_DELAY - MIN_DELAY);
 
-    timerRef.current = setTimeout(() => {
-      const nextColor = COLORS[Math.floor(Math.random() * COLORS.length)];
-      setCurrentColor(nextColor);
-      setIsWaiting(false);
-      startTimeRef.current = Date.now();
-    }, delay);
+  const spawnChallenge = () => {
+    const nextColor = colors[Math.floor(Math.random() * colors.length)];
+    const nextKey = Object.keys(keyMap).find(key => keyMap[key] === nextColor);
 
-    return () => clearTimeout(timerRef.current);
-  }, [round, results, onGameEnd]);
+    setChallenge({ key: nextKey, color: nextColor });
+    setFeedback(null);
+    setGameState('playing'); // Game is now active and waiting for input
+    startTime.current = Date.now();
+  };
 
-  // Key press listener effect
+  // Main game loop logic: "Get Ready" countdown
   useEffect(() => {
-    const handleKeyPress = (e) => {
-      if (isWaiting || !currentColor) return; // Don't do anything if not in active state
+    if (gameState === 'ready') {
+      const startTimer = setTimeout(() => {
+        spawnChallenge();
+      }, 1000); // Initial 1-second "Get Ready"
+      return () => clearTimeout(startTimer);
+    }
+  }, [gameState]);
 
-      const key = e.key.toLowerCase();
-      if (key !== 'r' && key !== 'g' && key !== 'b') return; // Ignore other keys
 
-      const reactionTime = Date.now() - startTimeRef.current;
-      const isCorrect = key === currentColor.key;
-      
-      // Store result and advance
-      setResults([...results, { time: reactionTime, isCorrect }]);
-      setRound(round + 1);
+  // Event handler
+  const handleKeyUp = useCallback((e) => {
+    // Only run if we are in the 'playing' state
+    if (gameState !== 'playing' || !challenge.key || !keyMap[e.key]) return;
+
+    // We've received the input, move to 'result' state
+    setGameState('result');
+    const reactionTime = Date.now() - startTime.current;
+    const isCorrect = keyMap[e.key] === challenge.color;
+
+    setFeedback(isCorrect ? 'correct' : 'incorrect');
+
+    const newResult = {
+      score_time_ms: reactionTime,
+      accuracy: isCorrect ? 1 : 0
     };
+    
+    // ** THE FIX IS HERE **
+    // We use a functional update for setResults.
+    // The logic to start the next round is now *inside* this update,
+    // so it has access to the correct, up-to-date results.
+    setResults((prevResults) => {
+      const updatedResults = [...prevResults, newResult];
 
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
+      // Check if the game should continue
+      if (updatedResults.length < settings.rounds) {
+        nextRoundTimer.current = setTimeout(() => {
+          spawnChallenge();
+        }, 1000); // 1-second delay for feedback
+      }
 
-  }, [isWaiting, currentColor, round, results]);
+      return updatedResults;
+    });
+    
+  }, [gameState, challenge, settings.rounds, keyMap]); // Removed stale dependencies
 
+  // Add/Remove event listener
+  useEffect(() => {
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keyup', handleKeyUp);
+      // Clear any pending timers when component unmounts
+      if (nextRoundTimer.current) {
+        clearTimeout(nextRoundTimer.current);
+      }
+    };
+  }, [handleKeyUp]);
+
+
+  if (gameState === 'ready') {
+    return <div className="text-center p-8"><h2 className="text-2xl font-bold text-white">Get Ready...</h2></div>;
+  }
+
+  // Render the game UI
   return (
-    <div className="relative flex h-96 w-full items-center justify-center rounded-lg bg-gray-900">
-      {isWaiting && (
-        <div className="text-center text-gray-400">
-          <p className="text-xl">Get ready...</p>
-        </div>
-      )}
-      
-      {currentColor && (
-        <div className="text-center">
-          <div
-            className="h-32 w-32 rounded-lg shadow-lg"
-            style={{ backgroundColor: currentColor.hex }}
-          />
-          <p className="mt-4 text-2xl font-bold text-white">Press {currentColor.key.toUpperCase()}</p>
-        </div>
-      )}
+    <div className="w-full h-80 flex flex-col justify-center items-center bg-gray-800 rounded-lg p-6 border-2 border-gray-700">
+      <div className="text-center">
+        {feedback === 'correct' && <p className="text-2xl text-green-500">Correct!</p>}
+        {feedback === 'incorrect' && <p className="text-2xl text-red-500">Wrong!</p>}
+        
+        {gameState === 'playing' && challenge.color && (
+          <>
+            <p className="text-2xl text-gray-400 mb-4">Press the key for:</p>
+            <div 
+              className="w-24 h-24 rounded-lg"
+              style={{ backgroundColor: colorHex[challenge.color] }}
+            ></div>
+            <p className="text-lg text-gray-500 mt-4">(R, G, or B)</p>
+          </>
+        )}
 
-      {/* Instructions */}
-      <div className="absolute top-4 left-4 text-sm text-gray-400">
-        Press (R)ed, (G)reen, or (B)lue
-      </div>
-      <div className="absolute bottom-4 left-4 text-sm text-gray-500">
-        Round: {round + 1} / {ROUNDS}
+        {/* This shows while feedback is visible */}
+        {gameState === 'result' && feedback && (
+           <p className="text-2xl text-gray-400">Next round...</p>
+        )}
       </div>
     </div>
   );
-};
+}
 
 export default VisualChoiceGame;

@@ -1,8 +1,9 @@
 import axios from 'axios';
 
-// Create an Axios instance for our API
+// === Main API Client ===
+// We will use this single client for all requests.
 const apiClient = axios.create({
-  baseURL: 'http://localhost:3000/api', // Our backend server
+  baseURL: 'http://localhost:3000/api',
 });
 
 // =================================================================
@@ -25,13 +26,17 @@ export const loginUser = (credentials) => {
   return apiClient.post('/auth/login', credentials);
 };
 
-/**
- * Gets the public leaderboard.
- * @param {string | null} gameType - Optional game type to filter (e.g., 'visual_choice')
- */
-export const getLeaderboard = (gameType = null) => {
-  const params = gameType ? { game: gameType } : {};
-  return apiClient.get('/leaderboard', { params });
+export const getLeaderboard = (game, difficulty) => {
+  let query = '/leaderboard';
+  const params = [];
+  if (game) params.push(`game=${game}`);
+  if (difficulty) params.push(`difficulty=${difficulty}`);
+  
+  if (params.length > 0) {
+    query += '?' + params.join('&');
+  }
+  
+  return apiClient.get(query);
 };
 
 // =================================================================
@@ -47,11 +52,12 @@ const getAuthHeaders = (token) => {
 };
 
 /**
- * Submits a new score for the logged-in user.
- * @param {object} scoreData - { game_type, score_time_ms, accuracy }
- * @param {string} token - The user's JWT.
+ * Submits a SINGLE, AVERAGED game result.
+ * @param {object} scoreData - The final averaged score object.
+ * @param {string} token - The user's JWT
  */
-export const submitScore = (scoreData, token) => {
+export const submitGameResult = (scoreData, token) => {
+  // scoreData should be { game_type, difficulty, avg_score_time_ms, avg_accuracy }
   return apiClient.post('/scores', scoreData, getAuthHeaders(token));
 };
 

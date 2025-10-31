@@ -7,11 +7,10 @@ import { leaderboard_util } from "../util/index.js";
  */
 export const getTopScores = async (req, res) => {
   // Read the 'game' query parameter from the URL
-  const { game } = req.query; 
+  const { game, difficulty } = req.query; 
 
   try {
-    // Pass the game_type (or null) to the utility function
-    const scores = await leaderboard_util.getLeaderboard(game, 10);
+    const scores = await leaderboard_util.getLeaderboard(game, difficulty);
     res.status(200).json(scores);
   } catch (error) {
     console.error(error)

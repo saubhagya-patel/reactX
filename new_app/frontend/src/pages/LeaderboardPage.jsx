@@ -21,6 +21,7 @@ const GAME_TYPE_MAP = {
 const LeaderboardPage = () => {
   const [scores, setScores] = useState([]);
   const [gameFilter, setGameFilter] = useState(''); // Empty string means all games
+  const [difficultyFilter, setDifficultyFilter] = useState(''); // Empty string means all
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -29,9 +30,11 @@ const LeaderboardPage = () => {
       setIsLoading(true);
       setError(null);
       try {
-        // Pass the filter to the API service.
-        // If gameFilter is "", it will fetch the default leaderboard.
-        const response = await getLeaderboard(gameFilter || null);
+        // Pass both filters to the API service.
+        const response = await getLeaderboard(
+          gameFilter || null,
+          difficultyFilter || null
+        );
         setScores(response.data);
       } catch (err) {
         console.error('Error fetching leaderboard:', err);
@@ -42,28 +45,50 @@ const LeaderboardPage = () => {
     };
 
     fetchLeaderboard();
-  }, [gameFilter]); // Re-fetch whenever the gameFilter changes
+  }, [gameFilter, difficultyFilter]); // Re-fetch whenever filters change
 
   return (
-    <div className="mx-auto max-w-3xl">
-      <div className="mb-6 flex items-center justify-between rounded-lg bg-gray-800 p-6 shadow-xl">
+    <div className="mx-auto max-w-4xl">
+      <div className="mb-6 flex flex-col sm:flex-row items-center justify-between rounded-lg bg-gray-800 p-6 shadow-xl gap-4">
         <h2 className="text-3xl font-bold text-white">Leaderboard</h2>
-        {/* Filter Dropdown */}
-        <div className="w-1/3">
-          <label htmlFor="gameFilter" className="mb-1 block text-sm font-medium text-gray-300">
-            Filter by game
-          </label>
-          <select
-            id="gameFilter"
-            value={gameFilter}
-            onChange={(e) => setGameFilter(e.target.value)}
-            className="w-full p-2 rounded-md border-gray-700 bg-gray-900 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-          >
-            <option value="">All Games</option>
-            <option value="visual_simple">Visual Reaction</option>
-            <option value="visual_choice">Choice Reaction</option>
-            <option value="auditory_simple">Auditory Reaction</option>
-          </select>
+        
+        {/* Filter Container */}
+        <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+          {/* Game Filter Dropdown */}
+          <div className="w-full sm:w-48">
+            <label htmlFor="gameFilter" className="mb-1 block text-sm font-medium text-gray-300">
+              Game
+            </label>
+            <select
+              id="gameFilter"
+              value={gameFilter}
+              onChange={(e) => setGameFilter(e.target.value)}
+              className="w-full p-2 rounded-md border-gray-700 bg-gray-900 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            >
+              <option value="">All Games</option>
+              <option value="visual_simple">Visual Reaction</option>
+              <option value="visual_choice">Choice Reaction</option>
+              <option value="auditory_simple">Auditory Reaction</option>
+            </select>
+          </div>
+
+          {/* Difficulty Filter Dropdown */}
+          <div className="w-full sm:w-48">
+            <label htmlFor="difficultyFilter" className="mb-1 block text-sm font-medium text-gray-300">
+              Difficulty
+            </label>
+            <select
+              id="difficultyFilter"
+              value={difficultyFilter}
+              onChange={(e) => setDifficultyFilter(e.target.value)}
+              className="w-full p-2 rounded-md border-gray-700 bg-gray-900 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            >
+              <option value="">All Difficulties</option>
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -130,13 +155,23 @@ const LeaderboardPage = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    {GAME_TYPE_MAP[score.game_type] || score.game_type}
-                    {score.accuracy && (
-                      <span className="ml-2 text-xs text-blue-400">({score.accuracy * 100}% acc)</span>
-                    )}
+                    {/* Game Type and Accuracy */}
+                    <div>{GAME_TYPE_MAP[score.game_type] || score.game_type}</div>
+                    <div className="text-xs text-gray-400 capitalize">({score.difficulty})</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-lg font-semibold text-indigo-400">
-                    {score.score_time_ms} ms
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {/* Score and Accuracy */}
+                    <div className="text-lg font-semibold text-indigo-400">{score.avg_score_time_ms} ms</div>
+                    
+                    {/* ** THIS IS THE FIX ** */}
+                    {/* Check if avg_accuracy is a number, otherwise show N/A */}
+                    {typeof score.avg_accuracy === 'number' ? (
+                      <span className="text-xs text-blue-400">
+                        ({(score.avg_accuracy * 100).toFixed(0)}% acc)
+                      </span>
+                    ) : (
+                      <span className="text-xs text-gray-500">(N/A)</span>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -149,3 +184,4 @@ const LeaderboardPage = () => {
 };
 
 export default LeaderboardPage;
+

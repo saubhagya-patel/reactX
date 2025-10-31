@@ -17,7 +17,8 @@ CREATE TABLE "game_scores" (
     "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     "user_id" UUID NOT NULL REFERENCES "users"("id") ON DELETE CASCADE,
     "game_type" VARCHAR(50) NOT NULL,
-    "score_time_ms" INTEGER NOT NULL,
-    "accuracy" FLOAT,
+    "difficulty" VARCHAR(20) NOT NULL,
+    "avg_score_time_ms" INTEGER NOT NULL,
+    "avg_accuracy" FLOAT, -- This will be null for games without accuracy
     "created_at" TIMESTAMPTZ DEFAULT NOW()
 );

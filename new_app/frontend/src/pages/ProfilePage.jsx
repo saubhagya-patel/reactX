@@ -200,7 +200,7 @@ const ProfilePage = () => {
                       {GAME_TYPE_MAP[score.game_type] || score.game_type}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-indigo-400">
-                      {score.score_time_ms} ms
+                      {score.avg_score_time_ms} ms
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                       {score.accuracy !== null ? `${score.accuracy * 100}%` : 'N/A'}

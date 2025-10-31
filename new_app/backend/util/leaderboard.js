@@ -1,48 +1,53 @@
 import { getDB } from "../db/db_instance.js";
 
 /**
- * Gets the top 10 leaderboard scores, with an optional game type filter.
- * Joins with the users table to get username and avatar.
- * @param {string} gameType - (Optional) The game type to filter by.
- * @returns {Promise<Array>} A promise that resolves to the leaderboard data.
+ * Gets the top 10 scores, now from the simplified 'game_scores' table.
+ * Can be filtered by game type and difficulty.
+ * @param {string | null} gameType - Optional game type to filter.
+ * @param {string | null} difficulty - Optional difficulty to filter.
+ * @returns {Promise<Array<object>>} The leaderboard data.
  */
-export async function getLeaderboard(gameType = null) {
-  // Base query text
-  let queryText = `
+export async function getLeaderboard(gameType, difficulty) {
+  const db = getDB();
+  let query = `
     SELECT 
-      "g"."score_time_ms", 
-      "g"."game_type", 
-      "g"."accuracy", 
-      "u"."username", 
-      "u"."avatar_key",
-      RANK() OVER (ORDER BY "g"."score_time_ms" ASC) as "rank"
-    FROM 
-      "game_scores" AS "g"
-    JOIN 
-      "users" AS "u" ON "g"."user_id" = "u"."id"
+      u."username", 
+      u."avatar_key",
+      gs."game_type",
+      gs."difficulty",
+      gs."avg_score_time_ms",
+      gs."avg_accuracy"
+    FROM "game_scores" AS gs
+    JOIN "users" AS u ON gs."user_id" = u."id"
   `;
 
-  const queryParams = [];
+  const values = [];
+  const whereClauses = [];
 
-  // Add a WHERE clause if gameType is provided
   if (gameType) {
-    queryParams.push(gameType);
-    // THE FIX IS HERE: Removed the semicolon (;) from the end of this line
-    queryText += ` WHERE "g"."game_type" = $1`;
+    values.push(gameType);
+    whereClauses.push(`gs."game_type" = $${values.length}`);
+  }
+  
+  if (difficulty) {
+    values.push(difficulty);
+    whereClauses.push(`gs."difficulty" = $${values.length}`);
   }
 
-  // Add the final ordering and limit
-  queryText += `
-    ORDER BY 
-      "rank" ASC, "g"."created_at" ASC
-    LIMIT 10
-  `;
+  if (whereClauses.length > 0) {
+    query += ' WHERE ' + whereClauses.join(' AND ');
+  }
 
-  const db = getDB();
+  // Rank by fastest time
+  query += ' ORDER BY gs."avg_score_time_ms" ASC LIMIT 10';
 
   try {
-    const { rows } = await db.query(queryText, queryParams);
-    return rows;
+    const result = await db.query(query, values);
+    // Add a 'rank' to each result
+    return result.rows.map((row, index) => ({
+      rank: index + 1,
+      ...row,
+    }));
   } catch (error) {
     console.error('Error getting leaderboard:', error);
     throw error;
