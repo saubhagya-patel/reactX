@@ -19,6 +19,14 @@ const GAME_TYPE_MAP = {
   stroop_effect: 'Stroop Reaction',
 };
 
+// A mapping of game keys to icons
+const GAME_ICON_MAP = {
+  visual_simple: '🎯',
+  visual_choice: '🎨',
+  auditory_simple: '🎧',
+  stroop_effect: '🌀',
+};
+
 const LeaderboardPage = () => {
   const [scores, setScores] = useState([]);
   const [gameFilter, setGameFilter] = useState(''); // Empty string means all games
@@ -156,17 +164,26 @@ const LeaderboardPage = () => {
                       <span className="font-medium text-white">{score.username}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                    {/* Game Type and Accuracy */}
-                    <div>{GAME_TYPE_MAP[score.game_type] || score.game_type}</div>
-                    <div className="text-xs text-gray-400 capitalize">({score.difficulty})</div>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {/* ** MODIFIED SECTION ** */}
+                    <div className="flex items-center">
+                      <span className="mr-3 text-2xl">
+                        {GAME_ICON_MAP[score.game_type] || '❔'}
+                      </span>
+                      <div>
+                        <div className="text-sm text-gray-300">
+                          {GAME_TYPE_MAP[score.game_type] || score.game_type}
+                        </div>
+                        <div className="text-xs text-gray-400 capitalize">
+                          ({score.difficulty})
+                        </div>
+                      </div>
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {/* Score and Accuracy */}
                     <div className="text-lg font-semibold text-indigo-400">{score.avg_score_time_ms} ms</div>
                     
-                    {/* ** THIS IS THE FIX ** */}
-                    {/* Check if avg_accuracy is a number, otherwise show N/A */}
                     {typeof score.avg_accuracy === 'number' ? (
                       <span className="text-xs text-blue-400">
                         ({(score.avg_accuracy * 100).toFixed(0)}% acc)
@@ -186,4 +203,3 @@ const LeaderboardPage = () => {
 };
 
 export default LeaderboardPage;
-
