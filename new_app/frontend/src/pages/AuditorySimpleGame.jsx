@@ -68,11 +68,12 @@ function AuditorySimpleGame({ settings, onGameEnd }) {
     let resultData = {};
 
     if (gameState === 'waiting') {
-      // Clicked too soon
-      clearTimeout(beepTimer.current);
-      setFeedback('Clicked too soon! Wait for the beep.');
-      setGameState('result'); // Move to result state
-      resultData = { score_time_ms: 0, accuracy: null };
+        // Clicked too soon → apply penalty
+        clearTimeout(beepTimer.current);
+        const penalty = 9999; // 9.999 seconds — you can tune this
+        setFeedback(`Too soon! +${penalty}ms penalty`);
+        setGameState('result');
+        resultData = { score_time_ms: penalty, accuracy: null }; // Counted as "miss"
     }
 
     if (gameState === 'playing') {

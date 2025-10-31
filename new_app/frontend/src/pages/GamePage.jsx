@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useAuthStore } from '../store/auth_store';
 import { submitGameResult } from '../services/api_client';
 
@@ -110,6 +110,20 @@ const GameSummary = ({ results, onPlayAgain }) => {
       >
         Play Again
       </button>
+
+      <Link
+          to={`/leaderboard`}
+          className="mt-2 w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+        >
+          See Leaderboard
+        </Link>
+  
+      <Link
+          to={`/`}
+          className="mt-2 w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+        >
+          Play another one
+        </Link>
     </div>
   );
 };
