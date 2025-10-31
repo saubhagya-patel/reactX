@@ -1,9 +1,10 @@
 import axios from 'axios';
+import conf from '../conf/conf';
 
 // === Main API Client ===
 // We will use this single client for all requests.
 const apiClient = axios.create({
-  baseURL: 'http://localhost:3000/api',
+  baseURL: conf.apiUrl || 'http://localhost:3000/api',
 });
 
 // =================================================================
