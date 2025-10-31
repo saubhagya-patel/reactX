@@ -8,6 +8,7 @@ import VisualSimpleGame from './VisualSimpleGame';
 import VisualChoiceGame from './VisualChoiceGame';
 import AuditorySimpleGame from './AuditorySimpleGame';
 import StroopEffectGame from './StroopEffectGame';
+import SimonGame from './SimonGame';
 
 // --- GameSettings Component ---
 const GameSettings = ({ gameName, onSubmit }) => {
@@ -241,6 +242,10 @@ const gameComponents = {
   stroop_effect: {
     component: StroopEffectGame,
     name: 'Stroop Effect Test',
+  },
+  simon_game: {
+    component: SimonGame,
+    name: 'Simon Game Test',
   },
 };
 

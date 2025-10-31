@@ -28,6 +28,12 @@ const games = [
     description: 'Click the color of the text NOT the word.',
     icon: '🌀',
   },
+  {
+    type: 'simon_game',
+    title: 'Simon Game',
+    description: "The good ol'",
+    icon: '🟥🟩🟦🟨',
+  },
 ];
 
 const HomePage = () => {

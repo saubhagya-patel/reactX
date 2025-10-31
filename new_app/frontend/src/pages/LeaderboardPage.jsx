@@ -17,6 +17,7 @@ const GAME_TYPE_MAP = {
   visual_choice: 'Choice Reaction',
   auditory_simple: 'Auditory Reaction',
   stroop_effect: 'Stroop Reaction',
+  simon_game: 'Simon Reaction'
 };
 
 // A mapping of game keys to icons
@@ -25,6 +26,7 @@ const GAME_ICON_MAP = {
   visual_choice: '🎨',
   auditory_simple: '🎧',
   stroop_effect: '🌀',
+  simon_game: '🟥🟩🟦🟨'
 };
 
 const LeaderboardPage = () => {
@@ -79,6 +81,7 @@ const LeaderboardPage = () => {
               <option value="visual_choice">Choice Reaction</option>
               <option value="auditory_simple">Auditory Reaction</option>
               <option value="stroop_effect">Stroop Reaction</option>
+              <option value="simon_game">Simon Reaction</option>
             </select>
           </div>
 
