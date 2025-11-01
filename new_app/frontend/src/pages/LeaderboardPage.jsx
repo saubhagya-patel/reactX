@@ -49,6 +49,7 @@ const LeaderboardPage = () => {
               onChange={(e) => setGameFilter(e.target.value)}
               className="w-full p-2 rounded-md border-gray-700 bg-gray-900 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
             >
+              <option value="">All Games</option>              
               {Object.entries(GAME_TYPE_MAP).map(([key, label]) => (
                   <option key={key} value={key}>
                     {label}
